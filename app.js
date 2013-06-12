@@ -2,6 +2,7 @@ var fs = require('fs'),
     glob = require('glob'),
     jsp = require('uglify-js'),
     async = require('async'),
+    Parser = require('./parser'),
     opts = require('node-getopt').create([
         ['s' , 'source=ARG+'            , 'source file pattern(s)'],
         ['d'  , 'dest=ARG'                , 'output directory'],
@@ -20,7 +21,7 @@ function parseFiles(data) {
             var ast = data[i].ast;
             var code = ast.print_to_string({
                 comments : function (node, comment) {
-                    return true;
+                    Parser.parseComment(comment, node, data[i].file);
                 }
             });
             console.log(code);
