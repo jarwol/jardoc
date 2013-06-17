@@ -24,7 +24,6 @@ function parseFiles(data) {
                     Parser.parseComment(comment, node, data[i].file);
                 }
             });
-            console.log(code);
         }
         if (err) throw err;
     });
