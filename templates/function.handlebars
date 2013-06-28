@@ -1,0 +1,32 @@
+<h4>{{function}}({{#each params}}{{#if @index}}, {{/if}}{{paramName}}{{/each}})</h4>
+<div class="functionBody">
+    {{#if description}}
+        <p>{{description}}</p>
+    {{/if}}
+    {{#if params}}<h6>Parameters</h6>
+        <ul>
+            {{#each params}}
+                <li>
+                    <span class="identifier">
+                        {{#if optional}}[{{paramName}}]{{else}}{{paramName}}{{/if}}
+                    </span>
+                    {{#if paramType}}<span class="type"> : {{paramType}}</span>{{/if}}
+                    {{#if description}}
+                        <ul>
+                            <li>{{description}}</li>
+                        </ul>
+                    {{/if}}
+                </li>
+            {{/each}}
+        </ul>
+    {{/if}}
+    {{#if returns}}
+        <h6>Returns</h6>
+        <ul>
+            <li>
+                {{#if returns.type}}<span class="type">{{returns.type}} </span>{{/if}}
+                {{#if returns.description}}<span> - {{returns.description}}</span>{{/if}}
+            </li>
+        </ul>
+    {{/if}}
+</div>

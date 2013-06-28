@@ -1,11 +1,12 @@
 {
-    "name" : "JarDoc",
-    "version" : "0.1.0",
-    "author" : "Jared Wolinsky",
-    "dependencies" : {
-        "node-getopt" : "~0.2.3",
-        "uglify-js" : "~2.3.6",
-        "glob" : "~3.2.1",
-        "async" : "~0.2.9"
-    }
+  "name": "JarDoc",
+  "version": "0.1.0",
+  "author": "Jared Wolinsky",
+  "dependencies": {
+    "node-getopt": "~0.2.3",
+    "uglify-js": "~2.3.6",
+    "glob": "~3.2.1",
+    "async": "~0.2.9",
+    "handlebars": "~1.0.12"
+  }
 }

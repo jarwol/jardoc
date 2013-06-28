@@ -1,17 +1,17 @@
-var cmtRegexp = /^\s*\*?\s*(.+)$/;
+var cmtRegexp = /^\s*\**\s*([^*].*)$/;
 
 var Parser = function () {
     this.files = {};
     this.currentTag = null;
     this.currentFile = null;
-    this.currentModule = "";
+    this.currentModule = "default";
     this.currentNode = {};
     this.buffer = [];
-}
+};
 
 /**
  * Hash of functions that parse the specific tags within comments
- * @field processTag
+ * @field {Object} processTag
  */
 var processTag = {
     'module' : function (comment) {
@@ -21,6 +21,10 @@ var processTag = {
         }
         this.currentModule = words[0];
     },
+    /**
+     * Process a @private tag
+     * @function private
+     */
     'private' : function () {
         this.currentNode.private = true;
     },
@@ -36,10 +40,25 @@ var processTag = {
     },
     field : function (comment) {
         var words = comment.split(' ');
-        if (words.length !== 1) {
-            throw "Usage: @field name";
+        var type = null;
+        var name = null;
+        if (words.length < 1 || words.length > 2) {
+            throw "Usage: @field [type] name";
         }
-        this.currentNode.field = words[0];
+        if (isType(words[0])) {
+            if (words.length !== 2) {
+                throw "Usage: @field [type] name";
+            }
+            type = words[0].substr(1, words[0].length - 2);
+            name = words[1];
+        }
+        else {
+            name = words[0];
+        }
+        this.currentNode.field = {
+            type : type,
+            name : name
+        };
     },
     section : function (comment) {
         var words = comment.split(' ');
@@ -48,27 +67,33 @@ var processTag = {
         }
         this.currentNode.section = words[0];
     },
+    returns : function (comment) {
+        var words = comment.split(' ');
+        var type = null;
+        var desc = null;
+        if (words.length < 1) {
+            throw "Usage: @returns [{type}] [description]";
+        }
+        if (isType(words[0])) {
+            type = words[0].substr(1, words[0].length - 2);
+            desc = words.slice(1, words.length).join(' ');
+        }
+        else {
+            desc = words.join(' ');
+        }
+        this.currentNode.returns = {
+            type : type,
+            description : desc
+        }
+    },
     param : function (comment) {
-        function isType(str) {
-            var firstChar = str.charAt(0);
-            var lastChar = str.charAt(str.length - 1);
-            return firstChar === '{' && lastChar === '}';
-        }
-
-        function isOptional(str) {
-            var firstChar = str.charAt(0);
-            var lastChar = str.charAt(str.length - 1);
-            if ((firstChar === '[' && lastChar !== ']') || (firstChar !== '[' && lastChar === ']')) throw "Optional param must be enclosed in []";
-            return firstChar === '[';
-        }
-
         var val = {};
         var words = comment.split(' ');
         var type = null;
         var name = null;
         var desc = null;
         if (words.length < 1) {
-            throw "Usage: @param [type] paramName[=defaultVal]";
+            throw "Usage: @param [{type}] paramName[=defaultVal] [description]";
         }
         if (words.length === 1) {
             name = words[0];
@@ -116,6 +141,7 @@ var processTag = {
 Parser.prototype.parseComment = function (comment, node, file) {
     if (!file) throw "File name required";
     this.currentFile = file;
+    this.currentNode = {};
     if (comment.type === 'comment2' && comment.value.charAt(0) === '*') {
         this.currentTag = "description";
         var lines = comment.value.split('\n');
@@ -129,16 +155,16 @@ Parser.prototype.parseComment = function (comment, node, file) {
             var tagFunction = processTag[this.currentTag];
             if (tagFunction) {
                 tagFunction.call(this, this.buffer.join('\n').trim());
-                processNode()
+                processNode.call(this);
             }
             else {
-                throw "Unsupported tag: " + this.currentTag;
+                console.warn("Unsupported tag: " + this.currentTag);
             }
         }
         this.buffer = [];
         this.currentTag = null;
     }
-}
+};
 
 function processLine(line) {
     if (line.charAt(0) === '@') {
@@ -148,7 +174,13 @@ function processLine(line) {
             line = words.slice(1, words.length).join(' ');
         }
         if (this.currentTag && this.buffer.length > 0) {
-            processTag[this.currentTag].call(this, this.buffer.join('\n').trim());
+            var processFn = processTag[this.currentTag];
+            if (processFn) {
+                processFn.call(this, this.buffer.join('\n').trim());
+            }
+            else {
+                console.warn("Unsupported tag: " + this.currentTag);
+            }
             this.buffer = [];
         }
         this.currentTag = tag;
@@ -159,6 +191,9 @@ function processLine(line) {
     }
 }
 
+/**
+ * @function processNode
+ */
 function processNode() {
     var val = this.currentNode;
     if (!this.files[this.currentFile]) {
@@ -169,20 +204,41 @@ function processNode() {
     }
     var slot = this.files[this.currentFile][this.currentModule];
     if (val.function) {
-        if (!slot.functions) slot.functions = {};
-        slot.functions[val.function] = val;
+        if (!slot.Functions) slot.Functions = {};
+        slot.Functions[val.function] = val;
     }
     else if (val.field) {
-        if (!slot.fields) slot.fields = {};
-        slot.fields[val.field] = val;
+        if (!slot.Fields) slot.Fields = {};
+        slot.Fields[val.field] = val;
     }
     else if (val.section) {
         if (!slot.sections) slot.sections = {};
         slot.sections[val.section] = val;
     }
     else {
-        throw "Each comment section must contain one of the following tags: @function, @field, @section.";
+        console.error("Could not identify node:\n" + JSON.stringify(val, null, 4) + "\n. Each comment section must contain one of the following tags: @function, @field, @section.");
+        slot = null;
     }
+}
+
+/**
+ * Determine if a string is a valid type declaration
+ * @function isType
+ * @param {String} str word to check
+ * @returns {boolean} true if str is a type declaration
+ * @private
+ */
+function isType(str) {
+    var firstChar = str.charAt(0);
+    var lastChar = str.charAt(str.length - 1);
+    return firstChar === '{' && lastChar === '}';
+}
+
+function isOptional(str) {
+    var firstChar = str.charAt(0);
+    var lastChar = str.charAt(str.length - 1);
+    if ((firstChar === '[' && lastChar !== ']') || (firstChar !== '[' && lastChar === ']')) throw "Optional param must be enclosed in []";
+    return firstChar === '[';
 }
 
 module.exports = new Parser();

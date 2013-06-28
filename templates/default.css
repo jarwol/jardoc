@@ -1,0 +1,13 @@
+.functionBody {
+    margin-left: 4%;
+}
+
+.identifier {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.type {
+    font-weight: bold;
+    font-style: italic;
+}
