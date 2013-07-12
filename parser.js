@@ -192,6 +192,7 @@ function processLine(line) {
 }
 
 /**
+ * Store the current comment node in the main hash to be passed to the template
  * @function processNode
  */
 function processNode() {

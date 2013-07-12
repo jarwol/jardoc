@@ -1,0 +1,35 @@
+.function-body {
+    margin-bottom: 25px;
+}
+
+.doc-content div{
+    margin-left: 4%;
+}
+
+.identifier {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.type {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.navbar-container {
+    margin-left: 10%;
+}
+
+.navbar {
+    padding: 10px;
+}
+
+.navbar a {
+    line-height: 120%;
+    font-size: 120%;
+}
+
+a.hide {
+    margin-left: 15px;
+    font-size: x-large;
+}

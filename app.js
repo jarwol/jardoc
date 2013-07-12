@@ -7,6 +7,7 @@ var fs = require('fs'),
     opts = require('node-getopt').create([
         ['s', 'source=ARG+', 'source file pattern(s)'],
         ['d', 'dest=ARG', 'output directory'],
+        ['p', 'proj=ARG', 'project name'],
         ['', 'template[=default.handlebars]', 'handlebars template'],
         ['h', 'help', 'display this help'],
         ['v', 'version', 'show version']
@@ -27,7 +28,7 @@ function init() {
         }
         return buffer;
     });
-    Handlebars.registerHelper("strip", function (str, options) {
+    Handlebars.registerHelper("strip", function (str) {
         return str.replace(/\W/, "");
     });
     Handlebars.registerHelper('eq', function (val1, val2, options) {
@@ -48,10 +49,11 @@ function init() {
         }
         console.log("\n");
     });
-    Handlebars.registerPartial("field", fs.readFileSync("templates/field.handlebars", 'utf-8'))
-    Handlebars.registerPartial("function", fs.readFileSync("templates/function.handlebars", 'utf-8'));
-    var tmplFile = opts.options.template || "default.handlebars";
-    var template = fs.readFileSync("templates/" + tmplFile, 'utf-8');
+    this.templateDir = opts.options.template || "default";
+    Handlebars.registerPartial("field", fs.readFileSync("templates/" + this.templateDir + "/field.handlebars", 'utf-8'))
+    Handlebars.registerPartial("function", fs.readFileSync("templates/" + this.templateDir + "/function.handlebars", 'utf-8'));
+    Handlebars.registerPartial("navbar", fs.readFileSync("templates/" + this.templateDir + "/navbar.handlebars", 'utf-8'));
+    var template = fs.readFileSync("templates/" + this.templateDir + "/" + this.templateDir + ".handlebars", 'utf-8');
     templateFn = Handlebars.compile(template);
 }
 
@@ -69,13 +71,13 @@ function parseFiles(data) {
                 }
             });
         }
-        var html = templateFn({files : Parser.files});
+        var html = templateFn({files : Parser.files, project : opts.options.proj});
         var dest = opts.options.dest || ".";
         if (!fs.existsSync(dest)) {
             fs.mkdirSync(dest);
         }
         fs.writeFileSync(dest + "/index.html", html);
-        copyFile("templates/default.css", dest);
+        copyFile("templates/" + this.templateDir + "/default.css", dest);
     });
 }
 

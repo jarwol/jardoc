@@ -1,0 +1,34 @@
+{{#key_val this}}
+    <a href="javascript:toggleVisible('nav_{{strip key}}');">{{key}}</a><br/>
+
+    <div id="nav_{{strip key}}">
+        {{#key_val val}}
+            <div class="navbar-container">
+                <a href="javascript:toggleVisible('nav_{{strip key}}');">{{key}}</a><br/>
+
+                <div id="nav_{{strip key}}">
+                    {{#key_val val}}
+                        <div class="navbar-container">
+                            <a href="javascript:toggleVisible('nav_{{strip key}}');">{{key}}</a><br/>
+
+                            <div id="nav_{{strip key}}">
+                                {{#key_val val}}
+                                    <div class="navbar-container">
+                                        {{#unless val.private}}
+                                            {{#eq ../../key "Functions"}}
+                                                <a>{{val.function}}</a>
+                                            {{/eq}}
+                                            {{#eq ../../key "Fields"}}
+                                                <a>{{val.field.name}}</a>
+                                            {{/eq}}
+                                        {{/unless}}
+                                    </div>
+                                {{/key_val}}
+                            </div>
+                        </div>
+                    {{/key_val}}
+                </div>
+            </div>
+        {{/key_val}}
+    </div>
+{{/key_val}}
