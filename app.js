@@ -37,6 +37,17 @@ function init() {
         }
         return options.inverse(this);
     });
+    Handlebars.registerHelper('paramList', function (params) {
+        if (!params) return "";
+        var paramStr = "";
+        for (var i = 0; i < params.length; i++) {
+            if (params[i].paramName.indexOf('.') < 0) {
+                if (paramStr) paramStr += ", ";
+                paramStr += params[i].paramName;
+            }
+        }
+        return paramStr;
+    });
     Handlebars.registerHelper("debug", function (optionalValue) {
         console.log("Current Context");
         console.log("====================");

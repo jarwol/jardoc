@@ -140,6 +140,7 @@ var processTag = {
  */
 Parser.prototype.parseComment = function (comment, node, file) {
     if (!file) throw "File name required";
+    if(file !== this.currentFile) this.currentModule = "default";
     this.currentFile = file;
     this.currentNode = {};
     if (comment.type === 'comment2' && comment.value.charAt(0) === '*') {
@@ -155,12 +156,12 @@ Parser.prototype.parseComment = function (comment, node, file) {
             var tagFunction = processTag[this.currentTag];
             if (tagFunction) {
                 tagFunction.call(this, this.buffer.join('\n').trim());
-                processNode.call(this);
             }
             else {
                 console.warn("Unsupported tag: " + this.currentTag);
             }
         }
+        processNode.call(this);
         this.buffer = [];
         this.currentTag = null;
     }

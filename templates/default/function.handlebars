@@ -1,7 +1,7 @@
-<h4>{{function}}({{#each params}}{{#if @index}}, {{/if}}{{paramName}}{{/each}})</h4>
+<h4>{{function}}({{paramList params}})</h4>
 <div class="function-body">
     {{#if description}}
-        <p>{{description}}</p>
+        <p>{{{description}}}</p>
     {{/if}}
     {{#if params}}<h6>Parameters</h6>
         <ul>
@@ -13,7 +13,7 @@
                     {{#if paramType}}<span class="type"> : {{paramType}}</span>{{/if}}
                     {{#if description}}
                         <ul>
-                            <li>{{description}}</li>
+                            <li>{{{description}}}</li>
                         </ul>
                     {{/if}}
                 </li>
@@ -25,7 +25,7 @@
         <ul>
             <li>
                 {{#if returns.type}}<span class="type">{{returns.type}} </span>{{/if}}
-                {{#if returns.description}}<span> - {{returns.description}}</span>{{/if}}
+                {{#if returns.description}}<span> - {{{returns.description}}}</span>{{/if}}
             </li>
         </ul>
     {{/if}}
