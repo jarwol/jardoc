@@ -140,7 +140,7 @@ var processTag = {
  */
 Parser.prototype.parseComment = function (comment, node, file) {
     if (!file) throw "File name required";
-    if(file !== this.currentFile) this.currentModule = "default";
+    if (file !== this.currentFile) this.currentModule = "default";
     this.currentFile = file;
     this.currentNode = {};
     if (comment.type === 'comment2' && comment.value.charAt(0) === '*') {
@@ -206,6 +206,7 @@ function processNode() {
     }
     var slot = this.files[this.currentFile][this.currentModule];
     if (val.function) {
+        setupParams(val);
         if (!slot.Functions) slot.Functions = {};
         slot.Functions[val.function] = val;
     }
@@ -221,6 +222,53 @@ function processNode() {
         console.error("Could not identify node:\n" + JSON.stringify(val, null, 4) + "\n. Each comment section must contain one of the following tags: @function, @field, @section.");
         slot = null;
     }
+}
+
+function setupParams(val) {
+    if (!val.params || !val.params.length) return;
+    var params = {};
+    var paramMap = {};
+    for (var i = 0; i < val.params.length; i++) {
+        var level = countPeriods(val.params[i].paramName);
+        if (!paramMap[level]) paramMap[level] = [];
+        paramMap[level].push(val.params[i]);
+    }
+    for (i = 0; i < paramMap[0].length; i++) {
+        params[paramMap[0][i].paramName] = paramMap[0][i];
+    }
+    for (i = 1; i < paramMap.length; i++) {
+        var paramArr = paramMap[i];
+        for (var j = 0; j < paramArr.length; j++) {
+            var name = paramArr[j].paramName;
+            var parent = findParentParam(params, name);
+            if (parent) {
+                if (!parent.params) parent.params = {};
+                parent.params[name] = paramArr[j];
+            }
+            else {
+                console.error("Parent param not declared for param " + name + " in function " + val.function);
+                params[name] = paramArr[j];
+            }
+        }
+    }
+    val.params = params;
+}
+
+function findParentParam(params, name) {
+    var parts = name.split('.');
+    var currentParam = params;
+    for (var i = 0; currentParam && i < parts.length - 1; i++) {
+        currentParam = currentParam[parts[i]];
+    }
+    return currentParam;
+}
+
+function countPeriods(str) {
+    var count = 0;
+    for (var i = 0; i < str.length; i++) {
+        if (str.charAt(i) === '.') count++;
+    }
+    return count;
 }
 
 /**
