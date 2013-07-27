@@ -91,55 +91,88 @@ function readFiles(files) {
 }
 
 function registerHandlebarsHelpers() {
-    Handlebars.registerHelper("displayParams", function (params) {
-        var buffer = "";
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                buffer += options.fn({key : key, val : obj[key]});
+    var recursiveFn = null;
+    Handlebars.registerHelper('recurse', function (children, options) {
+        var out = '';
+
+        if (options.fn) recursiveFn = options.fn;
+
+        if (recursiveFn) {
+            for (var key in children) {
+                out += recursiveFn(children[key]);
             }
         }
-        return buffer;
+        return out;
     });
-    
+    Handlebars.registerHelper("displayParams", function (params, options) {
+        var displayParams = function (params) {
+            var out = "";
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    out += options.fn({key : key, val : obj[key]});
+                }
+            }
+        };
+        displayParams(params);
+    });
+
     Handlebars.registerHelper("key_val", function (obj, options) {
         var buffer = "";
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                buffer += options.fn({key : key, val : obj[key]});
+        var sort = function (o) {
+            var a = [], i;
+            for (i in o) {
+                if (o.hasOwnProperty(i)) {
+                    a.push([i, o[i]]);
+                }
             }
+            a.sort(function (a, b) {
+                return a[0] > b[0] ? 1 : -1;
+            })
+            return a;
+        }
+        var sortedArr = sort(obj);
+        for (var i = 0; i < sortedArr.length; i++) {
+            buffer += options.fn({key : sortedArr[i][0], val : sortedArr[i][1]});
         }
         return buffer;
     });
-    
+
     Handlebars.registerHelper("strip", function (str) {
         return str.replace(/\W/, "");
     });
-    
+
     Handlebars.registerHelper('eq', function (val1, val2, options) {
         if (val1 == val2) {
             return options.fn(this);
         }
         return options.inverse(this);
     });
-    
+
+    Handlebars.registerHelper('neq', function (val1, val2, options) {
+        if (val1 != val2) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
+    });
+
     Handlebars.registerHelper('paramList', function (params) {
         if (!params) return "";
         var paramStr = "";
-        for (var i = 0; i < params.length; i++) {
-            if (params[i].paramName.indexOf('.') < 0) {
+        for (var name in params) {
+            if (name.indexOf('.') < 0) {
                 if (paramStr) paramStr += ", ";
-                paramStr += params[i].paramName;
+                paramStr += name;
             }
         }
-        return paramStr;
+        return " " + paramStr + " ";
     });
-    
+
     Handlebars.registerHelper('fileName', function (fullPath) {
         if (!fullPath) return "";
         var tokens = fullPath.split(/[/\\]/);
         return tokens[tokens.length - 1];
     });
-    
+
     Handlebars.registerHelper("debug", function (optionalValue) {
         console.log("Current Context");
         console.log("====================");

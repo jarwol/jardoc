@@ -205,6 +205,8 @@ function processNode() {
         this.files[this.currentFile][this.currentModule] = {};
     }
     var slot = this.files[this.currentFile][this.currentModule];
+    val.file = this.currentFile;
+    val.module = this.currentModule;
     if (val.function) {
         setupParams(val);
         if (!slot.Functions) slot.Functions = {};
@@ -212,7 +214,7 @@ function processNode() {
     }
     else if (val.field) {
         if (!slot.Fields) slot.Fields = {};
-        slot.Fields[val.field] = val;
+        slot.Fields[val.field.name] = val;
     }
     else if (val.section) {
         if (!slot.sections) slot.sections = {};
@@ -226,15 +228,15 @@ function processNode() {
 
 function setupParams(val) {
     if (!val.params || !val.params.length) return;
-    var params = {};
-    var paramMap = {};
+    var params = {params : {}};
+    var paramMap = [];
     for (var i = 0; i < val.params.length; i++) {
         var level = countPeriods(val.params[i].paramName);
         if (!paramMap[level]) paramMap[level] = [];
         paramMap[level].push(val.params[i]);
     }
     for (i = 0; i < paramMap[0].length; i++) {
-        params[paramMap[0][i].paramName] = paramMap[0][i];
+        params.params[paramMap[0][i].paramName] = paramMap[0][i];
     }
     for (i = 1; i < paramMap.length; i++) {
         var paramArr = paramMap[i];
@@ -247,18 +249,18 @@ function setupParams(val) {
             }
             else {
                 console.error("Parent param not declared for param " + name + " in function " + val.function);
-                params[name] = paramArr[j];
+                params.params[name] = paramArr[j];
             }
         }
     }
-    val.params = params;
+    val.params = params.params;
 }
 
 function findParentParam(params, name) {
     var parts = name.split('.');
     var currentParam = params;
     for (var i = 0; currentParam && i < parts.length - 1; i++) {
-        currentParam = currentParam[parts[i]];
+        currentParam = currentParam.params[parts.slice(0, i + 1).join('.')];
     }
     return currentParam;
 }

@@ -2,8 +2,8 @@
     margin-bottom: 25px;
 }
 
-.doc-content div{
-    margin-left: 4%;
+.function {
+    margin-left: 0;
 }
 
 .identifier {
@@ -22,6 +22,12 @@
 
 .navbar {
     padding: 10px;
+    position: fixed;
+
+}
+
+.navbar {
+    display: none;
 }
 
 .navbar a {
@@ -32,4 +38,23 @@
 a.hide {
     margin-left: 15px;
     font-size: x-large;
+}
+
+.doc-content .description {
+    background-color: #eeeeee;
+    padding: 4px;
+    border-radius: 5px;
+    margin: 4px 0;
+}
+
+.content-container {
+    margin-left: 4%;
+}
+
+footer {
+    margin-bottom: 10px;
+}
+
+.functionName{
+    color: #c67605;
 }

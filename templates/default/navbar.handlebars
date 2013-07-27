@@ -1,34 +1,35 @@
 {{#key_val this}}
-    <a href="javascript:toggleVisible('nav_{{strip key}}');">{{fileName key}}</a><br/>
+    <a href="#file_{{fileName key}}">{{fileName key}}</a><br/>
 
-    <div id="nav_{{strip key}}">
+    <div id="nav_{{fileName key}}">
         {{#key_val val}}
+            {{#neq key "default"}}
             <div class="navbar-container">
-                <a href="javascript:toggleVisible('nav_{{strip key}}');">{{key}}</a><br/>
+                <a href="#mod_{{fileName ../key}}_{{strip key}}">{{key}}</a><br/>
+            <div id="nav_{{fileName ../key}}_{{strip key}}">
+            {{/neq}}
+            {{#key_val val}}
+                <div class="navbar-container">
+                    <a href="#{{fileName ../../key}}_{{strip ../key}}_{{strip key}}">{{key}}</a><br/>
 
-                <div id="nav_{{strip key}}">
-                    {{#key_val val}}
-                        <div class="navbar-container">
-                            <a href="javascript:toggleVisible('nav_{{strip key}}');">{{key}}</a><br/>
-
-                            <div id="nav_{{strip key}}">
-                                {{#key_val val}}
-                                    <div class="navbar-container">
-                                        {{#unless val.private}}
-                                            {{#eq ../../key "Functions"}}
-                                                <a>{{val.function}}</a>
-                                            {{/eq}}
-                                            {{#eq ../../key "Fields"}}
-                                                <a>{{val.field.name}}</a>
-                                            {{/eq}}
-                                        {{/unless}}
-                                    </div>
-                                {{/key_val}}
+                    <div id="nav_{{fileName ../../key}}_{{strip ../key}}_{{strip key}}">
+                        {{#key_val val}}
+                            <div class="navbar-container">
+                                {{#unless val.private}}
+                                    {{#eq ../../key "Functions"}}
+                                        <a href="#{{fileName val.file}}_{{strip val.module}}_{{val.function}}">{{val.function}}</a>
+                                    {{/eq}}
+                                    {{#eq ../../key "Fields"}}
+                                        <a href="#{{fileName val.file}}_{{strip val.module}}_{{val.field.name}}">{{val.field.name}}</a>
+                                    {{/eq}}
+                                {{/unless}}
                             </div>
-                        </div>
-                    {{/key_val}}
+                        {{/key_val}}
+                    </div>
                 </div>
-            </div>
+            {{/key_val}}
+            {{#neq key "default"}}</div></div>{{/neq}}
+
         {{/key_val}}
     </div>
 {{/key_val}}

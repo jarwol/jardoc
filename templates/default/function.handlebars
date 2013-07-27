@@ -1,32 +1,34 @@
-<h4>{{function}}({{paramList params}})</h4>
-<div class="function-body">
-    {{#if description}}
-        <p>{{{description}}}</p>
-    {{/if}}
-    {{#if params}}<h6>Parameters</h6>
-        <ul>
-            {{#each params}}
-                <li>
+<div class="function" id="{{fileName file}}_{{strip module}}_{{function}}">
+    <h4><span class="functionName">{{function}}</span> ({{paramList params}})</h4>
+
+    <div class="function-body">
+        {{#if description}}
+            <div class="description">{{{description}}}</div>
+        {{/if}}
+        {{#if params}}<h5>Parameters</h5>
+            <ul>
+                {{#recurse params}}
+                    <li>
                     <span class="identifier">
-                        {{#if optional}}[{{paramName}}]{{else}}{{paramName}}{{/if}}
+                        {{paramName}}
                     </span>
-                    {{#if paramType}}<span class="type"> : {{paramType}}</span>{{/if}}
-                    {{#if description}}
-                        <ul>
-                            <li>{{{description}}}</li>
-                        </ul>
-                    {{/if}}
+                        {{#if paramType}}<span class="type"> : {{paramType}}{{#if optional}}
+                            (Optional){{/if}}</span>{{/if}}
+                        {{#if description}}<div class="description">{{{description}}}</div>{{/if}}
+                        {{#if params}}
+                            <ul>{{{recurse params}}}</ul>{{/if}}
+                    </li>
+                {{/recurse}}
+            </ul>
+        {{/if}}
+        {{#if returns}}
+            <h5>Returns</h5>
+            <ul>
+                <li>
+                    {{#if returns.type}}<span class="type">{{returns.type}} </span>{{/if}}
+                    {{#if returns.description}}<span> - {{{returns.description}}}</span>{{/if}}
                 </li>
-            {{/each}}
-        </ul>
-    {{/if}}
-    {{#if returns}}
-        <h6>Returns</h6>
-        <ul>
-            <li>
-                {{#if returns.type}}<span class="type">{{returns.type}} </span>{{/if}}
-                {{#if returns.description}}<span> - {{{returns.description}}}</span>{{/if}}
-            </li>
-        </ul>
-    {{/if}}
+            </ul>
+        {{/if}}
+    </div>
 </div>
